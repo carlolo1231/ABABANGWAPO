@@ -3,6 +3,7 @@ package config;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class DbConnect {
@@ -44,5 +45,28 @@ public class DbConnect {
         return result;
     }
     
-
+public ResultSet getData(String query) {
+    ResultSet rs = null;
+    try {
+        PreparedStatement pst = connect.prepareStatement(query);
+        rs = pst.executeQuery();
+    } catch (SQLException ex) {
+        System.out.println("SQL Error: " + ex.getMessage());
+    }
+    return rs;
 }
+public boolean insertData(String sql){
+            try{
+                PreparedStatement pst = connect.prepareStatement(sql);
+                pst.executeUpdate();
+                System.out.println("Inserted Successfully!");
+                pst.close();
+               return true;
+            }catch(SQLException ex){
+                System.out.println("Connection Error: "+ex);
+               return false;
+            }
+        }
+}
+
+
