@@ -2,6 +2,7 @@
 package ababangui;
 
 import config.DbConnect;
+import config.Session;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -138,7 +139,7 @@ public class LoginPage extends javax.swing.JFrame {
         return;
     }
 
-    String sql = "SELECT ps, status, type FROM users WHERE us = ?";
+    String sql = "SELECT u_id, fn, ln, em, us, type, status, ps FROM users WHERE us = ?";
 
     try (Connection connect = new DbConnect().getConnection(); 
          PreparedStatement pst = connect.prepareStatement(sql)) {
@@ -150,6 +151,16 @@ public class LoginPage extends javax.swing.JFrame {
             String dbPassword = rs.getString("ps"); 
             String status = rs.getString("status");
             String userType = rs.getString("type"); 
+            
+            Session sess = Session.getInstance();
+        sess.setuid(rs.getInt("u_id"));  
+        sess.setFname(rs.getString("fn"));
+        sess.setLname(rs.getString("ln"));
+        sess.setemail(rs.getString("em"));
+        sess.setusername(rs.getString("us"));
+        sess.settype(rs.getString("type"));
+        sess.setStatus(rs.getString("status"));
+        System.out.println(""+sess.getuid());
 
             if (status.equalsIgnoreCase("Pending")) {
                 JOptionPane.showMessageDialog(this, "Your account is pending. Please wait for admin approval.", "Access Denied", JOptionPane.ERROR_MESSAGE);

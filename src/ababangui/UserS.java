@@ -3,6 +3,7 @@ package ababangui;
 
 import config.DbConnect;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -10,6 +11,7 @@ import javax.swing.JOptionPane;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 
 
 public class UserS extends javax.swing.JFrame {
@@ -94,8 +96,34 @@ private void updateDatabase(int row, int column) {
     } catch (SQLException ex) {
         JOptionPane.showMessageDialog(null, "Database Error: " + ex.getMessage());
     }
+    
 }
+private void deleteUser() {
+        int selectedRow = jTable1.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "Please select a user to delete.");
+            return;
+        }
 
+        int userId = (int) jTable1.getValueAt(selectedRow, 0);
+        int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete this user?", "Confirm Deletion", JOptionPane.YES_NO_OPTION);
+        
+        if (confirm == JOptionPane.YES_OPTION) {
+            String sql = "DELETE FROM users WHERE u_id=?";
+
+            try (Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/supplytracker_db", "root", "");
+                 PreparedStatement pst = con.prepareStatement(sql)) {
+
+                pst.setInt(1, userId);
+                pst.executeUpdate();
+                JOptionPane.showMessageDialog(this, "User Deleted Successfully!");
+                loadUsersData(); 
+
+            } catch (SQLException ex) {
+                JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -109,16 +137,18 @@ private void updateDatabase(int row, int column) {
         jPanel2 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jPanel5 = new javax.swing.JPanel();
+        jButton6 = new javax.swing.JButton();
+        jButton7 = new javax.swing.JButton();
+        jButton8 = new javax.swing.JButton();
         jPanel3 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
         jLabel2 = new javax.swing.JLabel();
         jPanel4 = new javax.swing.JPanel();
         jButton5 = new javax.swing.JButton();
-        jButton6 = new javax.swing.JButton();
-        jButton7 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setResizable(false);
 
         jPanel1.setBackground(new java.awt.Color(0, 0, 0));
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -144,6 +174,36 @@ private void updateDatabase(int row, int column) {
         );
 
         jPanel2.add(jPanel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(740, 20, 120, 20));
+
+        jButton6.setBackground(new java.awt.Color(255, 255, 255));
+        jButton6.setFont(new java.awt.Font("Arial Black", 1, 14)); // NOI18N
+        jButton6.setText("Add");
+        jButton6.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton6ActionPerformed(evt);
+            }
+        });
+        jPanel2.add(jButton6, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 10, 140, 40));
+
+        jButton7.setBackground(new java.awt.Color(255, 255, 255));
+        jButton7.setFont(new java.awt.Font("Arial Black", 1, 14)); // NOI18N
+        jButton7.setText("Edit");
+        jButton7.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton7ActionPerformed(evt);
+            }
+        });
+        jPanel2.add(jButton7, new org.netbeans.lib.awtextra.AbsoluteConstraints(360, 10, 140, 40));
+
+        jButton8.setBackground(new java.awt.Color(255, 255, 255));
+        jButton8.setFont(new java.awt.Font("Arial Black", 1, 14)); // NOI18N
+        jButton8.setText("Delete");
+        jButton8.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton8ActionPerformed(evt);
+            }
+        });
+        jPanel2.add(jButton8, new org.netbeans.lib.awtextra.AbsoluteConstraints(560, 10, 140, 40));
 
         jPanel1.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1000, 60));
 
@@ -175,35 +235,15 @@ private void updateDatabase(int row, int column) {
         jPanel4.setBackground(new java.awt.Color(51, 51, 51));
         jPanel4.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jButton5.setBackground(new java.awt.Color(204, 0, 51));
+        jButton5.setBackground(new java.awt.Color(255, 255, 255));
         jButton5.setFont(new java.awt.Font("Arial Black", 1, 14)); // NOI18N
-        jButton5.setText("Delete");
+        jButton5.setText("Go Back");
         jButton5.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton5ActionPerformed(evt);
             }
         });
-        jPanel4.add(jButton5, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 200, 140, 40));
-
-        jButton6.setBackground(new java.awt.Color(204, 0, 51));
-        jButton6.setFont(new java.awt.Font("Arial Black", 1, 14)); // NOI18N
-        jButton6.setText("Add");
-        jButton6.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton6ActionPerformed(evt);
-            }
-        });
-        jPanel4.add(jButton6, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 80, 140, 40));
-
-        jButton7.setBackground(new java.awt.Color(204, 0, 51));
-        jButton7.setFont(new java.awt.Font("Arial Black", 1, 14)); // NOI18N
-        jButton7.setText("Edit");
-        jButton7.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton7ActionPerformed(evt);
-            }
-        });
-        jPanel4.add(jButton7, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 140, 140, 40));
+        jPanel4.add(jButton5, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 400, 140, 40));
 
         jPanel1.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 60, 160, 470));
 
@@ -221,19 +261,58 @@ private void updateDatabase(int row, int column) {
         );
 
         pack();
+        setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
-        
+    AdminDashboard pumped = new AdminDashboard();
+        pumped.setVisible(true);
+        this.dispose();      
     }//GEN-LAST:event_jButton5ActionPerformed
 
     private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
-        // TODO add your handling code here:
+      AddUser au = new AddUser();
+        au.setVisible(true);
     }//GEN-LAST:event_jButton6ActionPerformed
 
     private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
-        // TODO add your handling code here:
+       int rowIndex = jTable1.getSelectedRow();
+if (rowIndex < 0) {
+    JOptionPane.showMessageDialog(null, "Please select an item!");
+} else {
+    try {
+        DbConnect dbc = new DbConnect();
+        TableModel tbl = jTable1.getModel();
+
+        String userId = tbl.getValueAt(rowIndex, 0).toString(); // Get the user ID
+        String query = "SELECT * FROM users WHERE u_id = ?";
+
+        PreparedStatement pst = dbc.getConnection().prepareStatement(query);
+        pst.setString(1, userId);
+        ResultSet rs = pst.executeQuery();
+
+        if (rs.next()) {
+            Edituser crf = new Edituser();
+            crf.setUserId(userId); // Pass the user ID
+            crf.fn.setText(rs.getString("fn"));
+            crf.ln1.setText(rs.getString("ln"));
+            crf.cn.setText(rs.getString("cn"));
+            crf.Email.setText(rs.getString("em"));
+            crf.uss1.setText(rs.getString("us"));
+            crf.pass.setEnabled(false); 
+
+            crf.setVisible(true);
+            this.dispose();
+        }
+    } catch (SQLException ex) {
+        System.out.println("Error: " + ex.getMessage());
+    }
+}
     }//GEN-LAST:event_jButton7ActionPerformed
+
+    private void jButton8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton8ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton8ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -274,6 +353,7 @@ private void updateDatabase(int row, int column) {
     private javax.swing.JButton jButton5;
     private javax.swing.JButton jButton6;
     private javax.swing.JButton jButton7;
+    private javax.swing.JButton jButton8;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel1;

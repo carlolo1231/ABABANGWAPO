@@ -1,8 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package ababangui;
 
 import config.DbConnect;
@@ -12,15 +8,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.swing.JOptionPane;
 
-/**
- *
- * @author pc
- */
+
 public class AddUser extends javax.swing.JFrame {
 
-    /**
-     * Creates new form AddUser
-     */
+   
     public AddUser() {
         initComponents();
     }
@@ -28,17 +19,17 @@ public class AddUser extends javax.swing.JFrame {
  public boolean duplicateCheck() {
     DbConnect dbc = new DbConnect();
     try {
-        String query = "SELECT * FROM users WHERE RegUser = '" + us.getText() + "' OR email = '" + em.getText() + "'";
+        String query = "SELECT * FROM users WHERE us = '" + us.getText() + "' OR em = '" + em.getText() + "'";
         ResultSet resultSet = dbc.getData(query);
 
         if (resultSet.next()) {
-            String email = resultSet.getString("email"); 
+            String email = resultSet.getString("em"); 
             if (email.equals(em.getText())) {
                 JOptionPane.showMessageDialog(null, "Email is Already Used!");
                 em.setText(""); 
             }
 
-            String username = resultSet.getString("RegUser"); 
+            String username = resultSet.getString("us"); 
             if (username.equals(us.getText())) {
                 JOptionPane.showMessageDialog(null, "Username is Already Used!");
                 us.setText(""); 
@@ -70,7 +61,6 @@ public class AddUser extends javax.swing.JFrame {
         jLabel2 = new javax.swing.JLabel();
         jPanel4 = new javax.swing.JPanel();
         ln = new javax.swing.JTextField();
-        ps = new javax.swing.JTextField();
         fn = new javax.swing.JTextField();
         cn = new javax.swing.JTextField();
         em = new javax.swing.JTextField();
@@ -90,6 +80,7 @@ public class AddUser extends javax.swing.JFrame {
         type = new javax.swing.JComboBox<>();
         type2 = new javax.swing.JComboBox<>();
         jLabel9 = new javax.swing.JLabel();
+        ps = new javax.swing.JPasswordField();
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -103,6 +94,7 @@ public class AddUser extends javax.swing.JFrame {
         );
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setResizable(false);
 
         jPanel1.setBackground(new java.awt.Color(0, 0, 0));
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -134,7 +126,6 @@ public class AddUser extends javax.swing.JFrame {
         jPanel4.setBackground(new java.awt.Color(51, 51, 51));
         jPanel4.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
         jPanel4.add(ln, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 70, 187, 29));
-        jPanel4.add(ps, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 280, 187, 29));
         jPanel4.add(fn, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 30, 187, 29));
         jPanel4.add(cn, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 110, 187, 29));
         jPanel4.add(em, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 150, 187, 29));
@@ -165,7 +156,7 @@ public class AddUser extends javax.swing.JFrame {
         jLabel6.setText("Username:");
         jPanel4.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 240, 140, 30));
 
-        status.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Pending", "Approved" }));
+        status.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Pending", "Active" }));
         jPanel4.add(status, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 320, 190, 40));
 
         jLabel7.setFont(new java.awt.Font("Arial Black", 1, 14)); // NOI18N
@@ -180,6 +171,11 @@ public class AddUser extends javax.swing.JFrame {
 
         jButton1.setFont(new java.awt.Font("Arial Black", 1, 14)); // NOI18N
         jButton1.setText("CANCEL");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
         jPanel4.add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 320, 110, 30));
 
         ADD.setFont(new java.awt.Font("Arial Black", 1, 14)); // NOI18N
@@ -209,6 +205,7 @@ public class AddUser extends javax.swing.JFrame {
         jLabel9.setForeground(new java.awt.Color(255, 255, 255));
         jLabel9.setText("Password:");
         jPanel4.add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 280, 140, 30));
+        jPanel4.add(ps, new org.netbeans.lib.awtextra.AbsoluteConstraints(421, 280, 190, 30));
 
         jPanel1.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 80, 660, 370));
 
@@ -228,6 +225,7 @@ public class AddUser extends javax.swing.JFrame {
         );
 
         pack();
+        setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
     private void ADDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ADDActionPerformed
@@ -243,8 +241,8 @@ public class AddUser extends javax.swing.JFrame {
     } else {
         DbConnect dbc = new DbConnect();
 
-        if(dbc.insertData("INSERT INTO users (Fname, Lname,Contactnum, email, RegUser, RegPass, usertype, status) "
-            + "VALUES ('" + fn.getText() + "', '" + fn.getText() + "', '" + cn.getText() + "','" + em.getText() + "' '" + us.getText() + "', '"
+        if(dbc.insertData("INSERT INTO users (fn, ln,cn, em, us, ps, type, status) "
+            + "VALUES ('" + fn.getText() + "', '" + ln.getText() + "', '" + cn.getText() + "','" + em.getText() + "' , '" + us.getText() + "', '"
             + ps.getText() + "','" + status.getSelectedItem() + "','"+status.getSelectedItem()+"')")) {
 
             JOptionPane.showMessageDialog(null, "Registration Success!");
@@ -260,6 +258,12 @@ public class AddUser extends javax.swing.JFrame {
         adminuser.setVisible(true);
         this.dispose();
     }//GEN-LAST:event_ADDActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+       UserS adminuser = new UserS();
+        adminuser.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_jButton1ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -318,7 +322,7 @@ public class AddUser extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JTextField ln;
-    private javax.swing.JTextField ps;
+    private javax.swing.JPasswordField ps;
     private javax.swing.JComboBox<String> status;
     private javax.swing.JComboBox<String> type;
     private javax.swing.JComboBox<String> type2;
