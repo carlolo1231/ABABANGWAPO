@@ -1,8 +1,12 @@
 
 package ababangui;
 
+import Userdashboard.UserDashboard;
 import config.DbConnect;
 import config.Session;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -16,7 +20,62 @@ public class LoginPage extends javax.swing.JFrame {
     public LoginPage() {
         initComponents();
     }
+public static String hashPassword(String password) {  
+    try {
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        byte[] hash = md.digest(password.getBytes(StandardCharsets.UTF_8));
+        StringBuilder hexString = new StringBuilder();
+        for (byte b : hash) {
+            hexString.append(String.format("%02x", b));
+        }
+        return hexString.toString();
+    } catch (NoSuchAlgorithmException e) {
+        e.printStackTrace();
+        return null;
+    }
+}
+public static Boolean loginAcc(String username, String password) {
+               DbConnect connector = new DbConnect();
+    String query = "SELECT id, u_fname, u_lname, u_email, u_username, u_pass, status, type FROM users WHERE u_username = ?";
 
+    try (Connection connect = connector.getConnection();
+         PreparedStatement pst = connect.prepareStatement(query)) {
+
+        pst.setString(1, username);
+        ResultSet resultSet = pst.executeQuery();
+
+        if (resultSet.next()) {
+            String storedHashedPassword = resultSet.getString("u_pass");
+            String status = resultSet.getString("status");
+            String type = resultSet.getString("type");
+
+            String hashedPasswordInput = hashPassword(password);
+            if (hashedPasswordInput == null) {
+                System.out.println("Error hashing password!"); 
+                return false;
+            }
+
+            if (!hashedPasswordInput.equals(storedHashedPassword)) {
+                System.out.println("Invalid password."); 
+                return false;
+            }
+
+            if ("Pending".equalsIgnoreCase(status)) {
+                System.out.println("Your account is pending approval.");
+                return false;
+            }
+
+            System.out.println("Welcome " + username + "! You are logged in as " + type);
+            return true; 
+        } else {
+            System.out.println("Invalid username or password."); 
+            return false; 
+        }
+    } catch (SQLException ex) {
+        System.out.println("Database Error: " + ex.getMessage()); 
+        return false;
+    }
+   }
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -138,7 +197,7 @@ public class LoginPage extends javax.swing.JFrame {
         JOptionPane.showMessageDialog(this, "Username and Password cannot be empty!", "Error", JOptionPane.ERROR_MESSAGE);
         return;
     }
-
+    String hashedPasswordInput = hashPassword(passwordInput); 
     String sql = "SELECT u_id, fn, ln, em, us, type, status, ps FROM users WHERE us = ?";
 
     try (Connection connect = new DbConnect().getConnection(); 
@@ -166,10 +225,10 @@ public class LoginPage extends javax.swing.JFrame {
                 JOptionPane.showMessageDialog(this, "Your account is pending. Please wait for admin approval.", "Access Denied", JOptionPane.ERROR_MESSAGE);
                 return;
             }
-
-            
-            if (passwordInput.equals(dbPassword)) {
-                JOptionPane.showMessageDialog(this, "Login Successful!", "Success", JOptionPane.INFORMATION_MESSAGE);
+          if (hashedPasswordInput.equals(dbPassword)) {
+            JOptionPane.showMessageDialog(this, "Login Successful!", "Success", JOptionPane.INFORMATION_MESSAGE);
+             
+           
 
                 switch (userType.toLowerCase()) {
                     case "admin":

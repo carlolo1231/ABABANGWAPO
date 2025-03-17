@@ -2,6 +2,9 @@
 package ababangui;
 
 import config.DbConnect;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -77,7 +80,7 @@ public class AddUser extends javax.swing.JFrame {
         ADD = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
         jButton4 = new javax.swing.JButton();
-        type = new javax.swing.JComboBox<>();
+        utype = new javax.swing.JComboBox<>();
         type2 = new javax.swing.JComboBox<>();
         jLabel9 = new javax.swing.JLabel();
         ps = new javax.swing.JPasswordField();
@@ -195,8 +198,8 @@ public class AddUser extends javax.swing.JFrame {
         jButton4.setText("ADD");
         jPanel4.add(jButton4, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 100, 110, 30));
 
-        type.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Supplier", "Admin", "Client" }));
-        jPanel4.add(type, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 190, 190, 40));
+        utype.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Supplier", "Admin", "Client" }));
+        jPanel4.add(utype, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 190, 190, 40));
 
         type2.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Supplier", "Admin", "Client" }));
         jPanel4.add(type2, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 190, 190, 40));
@@ -230,33 +233,103 @@ public class AddUser extends javax.swing.JFrame {
 
     private void ADDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ADDActionPerformed
         
-        if(fn.getText().isEmpty() || fn.getText().isEmpty() || cn.getText().isEmpty()
-       ||em.getText().isEmpty()|| us.getText().isEmpty() || ps.getText().isEmpty()) {
-        JOptionPane.showMessageDialog(null, "All fields are required!");
-    } else if(ps.getText().length() < 8) {
-        JOptionPane.showMessageDialog(null, "Password character should be 8 above");
-        ps.setText("");
-    } else if(duplicateCheck()) {
-        System.out.println("Duplicate Exist");
-    } else {
-        DbConnect dbc = new DbConnect();
+    String fname = fn.getText().trim();
+    String lname = ln.getText().trim();
+    String number = cn.getText().trim();
+    String email = em.getText().trim();
+    String username = us.getText().trim();
+    String password = new String(ps.getPassword()).trim();
+    String type = utype.getSelectedItem().toString();
 
-        if(dbc.insertData("INSERT INTO users (fn, ln,cn, em, us, ps, type, status) "
-            + "VALUES ('" + fn.getText() + "', '" + ln.getText() + "', '" + cn.getText() + "','" + em.getText() + "' , '" + us.getText() + "', '"
-            + ps.getText() + "','" + status.getSelectedItem() + "','"+status.getSelectedItem()+"')")) {
+    String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
 
-            JOptionPane.showMessageDialog(null, "Registration Success!");
-            UserS au = new UserS();
-            au.setVisible(true);
-            this.dispose();
-        } else {
-            JOptionPane.showMessageDialog(null, "Connection Error!");
+    if (fname.isEmpty() || lname.isEmpty() || email.isEmpty() || username.isEmpty() || password.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "All fields are required!", "Error", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+
+    if (!fname.matches("[a-zA-Z ]+") || !lname.matches("[a-zA-Z ]+")) {
+        JOptionPane.showMessageDialog(this, "First and Last Name can only contain letters.", "Error", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+        if (!number.matches("\\d+")) {
+            JOptionPane.showMessageDialog(this, "Invalid contact number! Only numbers are allowed.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
-    }     
+    if (!email.matches(emailRegex)) {
+        JOptionPane.showMessageDialog(this, "Invalid email format!", "Error", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+
+    if (!username.matches("[a-zA-Z0-9_]{5,}")) {
+        JOptionPane.showMessageDialog(this, "Username must be at least 5 characters long and contain only letters, numbers, and underscores.", "Error", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+
+    if (!password.matches("^(?=.*[A-Z])(?=.*[!@#$%^&*()_+\\-=\\[\\]{};'\"\\\\|,.<>\\/?])(?=.*\\d).{8,}$")) {
+        JOptionPane.showMessageDialog(this, "Password must be at least 8 characters long, include an uppercase letter, a special character, and a number.", "Error", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+
+    DbConnect db = new DbConnect();
+    Connection conn = db.getConnection();
     
-        UserS adminuser = new UserS();
-        adminuser.setVisible(true);
-        this.dispose();
+    if (conn == null) {
+        JOptionPane.showMessageDialog(this, "Database connection failed.", "Error", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+
+    try {
+        if (db.isEmailExists(email)) {
+            JOptionPane.showMessageDialog(this, "Email is already in use. Please use a different email.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        String hashedPassword = hashPassword(password);
+
+        String insertQuery = "INSERT INTO users (fn, ln,cn, em, us, ps, type, status) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        try (PreparedStatement pst = conn.prepareStatement(insertQuery)) {
+            pst.setString(1, fname);
+            pst.setString(2, lname);
+            pst.setString(3, number);
+            pst.setString(4, email);
+            pst.setString(5, username);
+            pst.setString(6, hashedPassword);
+            pst.setString(7, type);
+            pst.setString(8, "Pending");  
+
+            int inserted = pst.executeUpdate();
+            if (inserted > 0) {
+                JOptionPane.showMessageDialog(this, "Registration successful! Your account is pending approval.", "Success", JOptionPane.INFORMATION_MESSAGE);
+                UserS login = new UserS();
+                login.setVisible(true);
+                this.dispose();
+            } else {
+                JOptionPane.showMessageDialog(this, "Registration failed. Please try again.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    } catch (SQLException e) {
+        JOptionPane.showMessageDialog(this, "Database Error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        e.printStackTrace();
+    } finally {
+        db.closeConnection();
+    }
+}
+
+private String hashPassword(String password) {
+    try {
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        byte[] hash = md.digest(password.getBytes(StandardCharsets.UTF_8));
+
+        StringBuilder hexString = new StringBuilder();
+        for (byte b : hash) {
+            hexString.append(String.format("%02x", b));
+        }
+        return hexString.toString();
+    } catch (NoSuchAlgorithmException e) {
+        e.printStackTrace();
+        return null;
+    }
     }//GEN-LAST:event_ADDActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
@@ -324,8 +397,8 @@ public class AddUser extends javax.swing.JFrame {
     private javax.swing.JTextField ln;
     private javax.swing.JPasswordField ps;
     private javax.swing.JComboBox<String> status;
-    private javax.swing.JComboBox<String> type;
     private javax.swing.JComboBox<String> type2;
     private javax.swing.JTextField us;
+    private javax.swing.JComboBox<String> utype;
     // End of variables declaration//GEN-END:variables
 }

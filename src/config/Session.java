@@ -10,6 +10,9 @@ public class Session {
     private String Lname;
     private String email;
     private String username;
+    private String pass;
+
+    
     private String type;
     private String status;
     
@@ -65,7 +68,13 @@ public class Session {
      public String gettype(){
     return type;
     }
-    
+    public String getPass() {
+        return pass;
+    }
+
+    public void setPass(String pass) {
+        this.pass = pass;
+    }
     public void settype(String type){
     this.type = type;
             }

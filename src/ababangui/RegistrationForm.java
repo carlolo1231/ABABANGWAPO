@@ -5,7 +5,11 @@
  */
 package ababangui;
 
+import static ababangui.LoginPage.hashPassword;
 import config.DbConnect;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -279,7 +283,7 @@ public class RegistrationForm extends javax.swing.JFrame {
                     return;
                 }
             }
-
+          String hashedPassword = hashPassword(password);
             String insertQuery = "INSERT INTO users (fn, ln, cn, em, us, ps, type, status) VALUES (?, ?, ?, ?, ?, ?, ?, 'Pending')";
             try (PreparedStatement insertStmt = connect.prepareStatement(insertQuery)) {
                 insertStmt.setString(1, fname);
@@ -287,7 +291,7 @@ public class RegistrationForm extends javax.swing.JFrame {
                 insertStmt.setString(3, cn);
                 insertStmt.setString(4, email);
                 insertStmt.setString(5, username);
-                insertStmt.setString(6, password);
+                insertStmt.setString(6, hashedPassword);
                 insertStmt.setString(7, type);
 
                 int inserted = insertStmt.executeUpdate();
@@ -303,6 +307,20 @@ public class RegistrationForm extends javax.swing.JFrame {
 
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(this, "Database Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+         private String hashPassword(String password) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            byte[] hash = md.digest(password.getBytes(StandardCharsets.UTF_8));
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : hash) {
+                hexString.append(String.format("%02x", b));
+            }
+            return hexString.toString();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            return null;
         }
     }//GEN-LAST:event_jButton1ActionPerformed
 

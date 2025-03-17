@@ -67,6 +67,29 @@ public boolean insertData(String sql){
                return false;
             }
         }
+public boolean isEmailExists(String email) {
+    String query = "SELECT COUNT(*) FROM users WHERE u_email = ?"; 
+    try (PreparedStatement pst = connect.prepareStatement(query)) {
+        pst.setString(1, email);
+        ResultSet rs = pst.executeQuery();
+        if (rs.next() && rs.getInt(1) > 0) {
+            return true;
+        }
+    } catch (SQLException ex) {
+        System.err.println("Error checking email existence: " + ex.getMessage());
+    }
+    return false;
+}
+ public void closeConnection() {
+        if (connect != null) {
+            try {
+                connect.close();
+                System.out.println("Database connection closed.");
+            } catch (SQLException ex) {
+                System.err.println("Error closing connection: " + ex.getMessage());
+            }
+        }
+    }
 }
 
 
