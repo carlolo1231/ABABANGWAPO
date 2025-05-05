@@ -18,6 +18,7 @@ public class UserS extends javax.swing.JFrame {
 
     
     public UserS() {
+        setUndecorated(true);
         initComponents();
         
         loadUsersData();
@@ -178,6 +179,7 @@ private void deleteUser() {
         jButton6.setBackground(new java.awt.Color(255, 255, 255));
         jButton6.setFont(new java.awt.Font("Arial Black", 1, 14)); // NOI18N
         jButton6.setText("Add");
+        jButton6.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 255), 5));
         jButton6.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton6ActionPerformed(evt);
@@ -188,6 +190,7 @@ private void deleteUser() {
         jButton7.setBackground(new java.awt.Color(255, 255, 255));
         jButton7.setFont(new java.awt.Font("Arial Black", 1, 14)); // NOI18N
         jButton7.setText("Edit");
+        jButton7.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 204), 5));
         jButton7.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton7ActionPerformed(evt);
@@ -198,6 +201,7 @@ private void deleteUser() {
         jButton8.setBackground(new java.awt.Color(255, 255, 255));
         jButton8.setFont(new java.awt.Font("Arial Black", 1, 14)); // NOI18N
         jButton8.setText("Delete");
+        jButton8.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 51, 204), 5));
         jButton8.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton8ActionPerformed(evt);
@@ -208,6 +212,7 @@ private void deleteUser() {
         jPanel1.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1000, 60));
 
         jPanel3.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel3.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 204), 5));
         jPanel3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jTable1.setBackground(new java.awt.Color(204, 204, 204));
@@ -238,6 +243,7 @@ private void deleteUser() {
         jButton5.setBackground(new java.awt.Color(255, 255, 255));
         jButton5.setFont(new java.awt.Font("Arial Black", 1, 14)); // NOI18N
         jButton5.setText("Go Back");
+        jButton5.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 204), 5));
         jButton5.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton5ActionPerformed(evt);
@@ -277,42 +283,65 @@ private void deleteUser() {
     }//GEN-LAST:event_jButton6ActionPerformed
 
     private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
-       int rowIndex = jTable1.getSelectedRow();
-if (rowIndex < 0) {
-    JOptionPane.showMessageDialog(null, "Please select an item!");
-} else {
-    try {
-        DbConnect dbc = new DbConnect();
-        TableModel tbl = jTable1.getModel();
+    int rowIndex  = jTable1.getSelectedRow();
+    if(rowIndex < 0){
+        JOptionPane.showMessageDialog(null,"Please Select Item!");
+    } else {
+        try {
+            DbConnect conf = new DbConnect();
+            TableModel tbl = jTable1.getModel();
+            ResultSet rs = conf.getData("SELECT * FROM users WHERE u_id = '" + tbl.getValueAt(rowIndex, 0) + "'");
 
-        String userId = tbl.getValueAt(rowIndex, 0).toString(); // Get the user ID
-        String query = "SELECT * FROM users WHERE u_id = ?";
+            if (rs.next()) {
+                EditUser adf = new EditUser();
+                adf.a_add.setEnabled(false);
+                adf.id.setText(rs.getString("u_id"));
+                adf.fname.setText(rs.getString("fn"));
+                adf.lname.setText(rs.getString("ln"));
+                
+                adf.email.setText(rs.getString("em"));
+                adf.uname.setText(rs.getString("us"));
+                adf.pname.setText(rs.getString("ps"));
+                adf.contact.setText(rs.getString("cn"));
+                adf.ustatus.setSelectedItem(rs.getString("status"));
+                
 
-        PreparedStatement pst = dbc.getConnection().prepareStatement(query);
-        pst.setString(1, userId);
-        ResultSet rs = pst.executeQuery();
+                String imagePath = rs.getString("image");
+                adf.oldpath = imagePath;
+                adf.path = imagePath;
+                adf.destination = imagePath;
 
-        if (rs.next()) {
-            Edituser crf = new Edituser();
-            crf.setUserId(userId); // Pass the user ID
-            crf.fn.setText(rs.getString("fn"));
-            crf.ln1.setText(rs.getString("ln"));
-            crf.cn.setText(rs.getString("cn"));
-            crf.Email.setText(rs.getString("em"));
-            crf.uss1.setText(rs.getString("us"));
-            crf.pass.setEnabled(false); 
+                
+                try {
+                    if (imagePath != null && !imagePath.isEmpty()) {
+                        adf.image.setIcon(adf.ResizeImage(imagePath, null, adf.image));
+                        adf.select.setEnabled(false);
+                        adf.remove.setEnabled(true);
+                    } else {
+                        adf.select.setEnabled(true);
+                        adf.remove.setEnabled(false);
+                    }
+                } catch (NullPointerException npEx) {
+                    System.out.println("Image loading failed: " + npEx.getMessage());
+                    adf.select.setEnabled(true);
+                    adf.remove.setEnabled(false);
+                }
 
-            crf.setVisible(true);
-            this.dispose();
+                adf.a_add.setEnabled(false);
+                adf.update.setEnabled(true);
+                adf.setVisible(true);
+                this.dispose();
+            }
+
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred while retrieving user data.");
         }
-    } catch (SQLException ex) {
-        System.out.println("Error: " + ex.getMessage());
     }
-}
     }//GEN-LAST:event_jButton7ActionPerformed
 
     private void jButton8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton8ActionPerformed
-        // TODO add your handling code here:
+     deleteUser();
     }//GEN-LAST:event_jButton8ActionPerformed
 
     /**

@@ -1,9 +1,14 @@
 
 package ababangui;
 
+import ForgotPass.ForgotPassword;
 import Userdashboard.UserDashboard;
 import config.DbConnect;
 import config.Session;
+import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -12,13 +17,23 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.swing.JOptionPane;
+import javax.swing.Timer;
 
 
 public class LoginPage extends javax.swing.JFrame {
-
   
+  private Timer blinkTimer;
+private boolean isBlue = true;
     public LoginPage() {
+        setUndecorated(true);
         initComponents();
+        blinkTimer = new Timer(500, new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+            jLabel1.setForeground(isBlue ? Color.BLUE : Color.WHITE);
+            isBlue = !isBlue;
+        }
+    });
+    blinkTimer.start();
     }
 public static String hashPassword(String password) {  
     try {
@@ -76,7 +91,22 @@ public static Boolean loginAcc(String username, String password) {
         return false;
     }
    }
+ public void logActivity(int userId, String activity) {
+    String logQuery = "INSERT INTO logs (user_id, activity) VALUES (?, ?)";
 
+    try (Connection conn = new DbConnect().getConnection();
+         PreparedStatement stmt = conn.prepareStatement(logQuery)) {
+
+        stmt.setInt(1, userId);
+        stmt.setString(2, activity);
+        stmt.executeUpdate();
+
+        System.out.println("Activity logged: " + activity);
+
+    } catch (SQLException ex) {
+        System.err.println("Failed to log activity: " + ex.getMessage());
+    }
+}
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -85,6 +115,7 @@ public static Boolean loginAcc(String username, String password) {
         jPanel1 = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
+        jLabel9 = new javax.swing.JLabel();
         jPanel3 = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
@@ -93,7 +124,14 @@ public static Boolean loginAcc(String username, String password) {
         Rbutton = new javax.swing.JButton();
         pass = new javax.swing.JPasswordField();
         jCheckBox1 = new javax.swing.JCheckBox();
+        jLabel8 = new javax.swing.JLabel();
+        jPanel4 = new javax.swing.JPanel();
+        jPanel6 = new javax.swing.JPanel();
         jLabel4 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
+        jLabel6 = new javax.swing.JLabel();
+        jLabel7 = new javax.swing.JLabel();
+        jPanel5 = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setResizable(false);
@@ -102,17 +140,29 @@ public static Boolean loginAcc(String username, String password) {
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jPanel2.setBackground(new java.awt.Color(51, 51, 51));
+        jPanel2.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 51, 255), 5));
         jPanel2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel1.setBackground(new java.awt.Color(255, 255, 255));
-        jLabel1.setFont(new java.awt.Font("Arial Black", 3, 24)); // NOI18N
+        jLabel1.setFont(new java.awt.Font("Georgia", 3, 36)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(255, 255, 255));
         jLabel1.setText("Welcome to Supply Request Tracker");
-        jPanel2.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 20, 530, 32));
+        jPanel2.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 30, 730, 40));
 
-        jPanel1.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1000, 70));
+        jLabel9.setFont(new java.awt.Font("Arial Black", 1, 24)); // NOI18N
+        jLabel9.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel9.setText("X");
+        jLabel9.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel9MouseClicked(evt);
+            }
+        });
+        jPanel2.add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(910, 10, 30, -1));
+
+        jPanel1.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1000, 100));
 
         jPanel3.setBackground(new java.awt.Color(51, 51, 51));
+        jPanel3.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 51, 255), 5, true));
         jPanel3.setName(""); // NOI18N
         jPanel3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
@@ -131,7 +181,7 @@ public static Boolean loginAcc(String username, String password) {
                 userActionPerformed(evt);
             }
         });
-        jPanel3.add(user, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 40, 140, 30));
+        jPanel3.add(user, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 40, 250, 30));
 
         Lbutton.setFont(new java.awt.Font("Arial Black", 1, 12)); // NOI18N
         Lbutton.setText("LOGIN");
@@ -140,7 +190,7 @@ public static Boolean loginAcc(String username, String password) {
                 LbuttonActionPerformed(evt);
             }
         });
-        jPanel3.add(Lbutton, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 160, 100, 40));
+        jPanel3.add(Lbutton, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 190, 140, 40));
 
         Rbutton.setFont(new java.awt.Font("Arial Black", 1, 12)); // NOI18N
         Rbutton.setText("REGISTER");
@@ -149,36 +199,109 @@ public static Boolean loginAcc(String username, String password) {
                 RbuttonActionPerformed(evt);
             }
         });
-        jPanel3.add(Rbutton, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 160, -1, 40));
+        jPanel3.add(Rbutton, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 190, 150, 40));
 
         pass.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 passActionPerformed(evt);
             }
         });
-        jPanel3.add(pass, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 90, 140, 30));
+        jPanel3.add(pass, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 90, 250, 30));
 
         jCheckBox1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jCheckBox1ActionPerformed(evt);
             }
         });
-        jPanel3.add(jCheckBox1, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 90, -1, 30));
+        jPanel3.add(jCheckBox1, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 90, -1, 30));
 
-        jPanel1.add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 110, 270, 250));
+        jLabel8.setBackground(new java.awt.Color(255, 255, 255));
+        jLabel8.setFont(new java.awt.Font("Arial Black", 3, 12)); // NOI18N
+        jLabel8.setForeground(new java.awt.Color(51, 51, 255));
+        jLabel8.setText("Forgot password?");
+        jLabel8.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel8MouseClicked(evt);
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                jLabel8MouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                jLabel8MouseExited(evt);
+            }
+        });
+        jPanel3.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 120, 150, -1));
+
+        jPanel1.add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 150, 440, 340));
+
+        jPanel4.setBackground(new java.awt.Color(0, 102, 255));
+
+        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
+        jPanel4.setLayout(jPanel4Layout);
+        jPanel4Layout.setHorizontalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 10, Short.MAX_VALUE)
+        );
+        jPanel4Layout.setVerticalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 430, Short.MAX_VALUE)
+        );
+
+        jPanel1.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(930, 100, 10, 430));
+
+        jPanel6.setBackground(new java.awt.Color(0, 102, 255));
+
+        javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
+        jPanel6.setLayout(jPanel6Layout);
+        jPanel6Layout.setHorizontalGroup(
+            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 10, Short.MAX_VALUE)
+        );
+        jPanel6Layout.setVerticalGroup(
+            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 430, Short.MAX_VALUE)
+        );
+
+        jPanel1.add(jPanel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 100, -1, -1));
 
         jLabel4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/pics/fantastic-fast-business-fast-internet-background_952778-12108.jpg"))); // NOI18N
-        jPanel1.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 70, 750, 390));
+        jPanel1.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 60, 720, 500));
+
+        jLabel5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/pics/fantastic-fast-business-fast-internet-background_952778-12108.jpg"))); // NOI18N
+        jPanel1.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(-420, 80, 720, 460));
+
+        jLabel6.setIcon(new javax.swing.ImageIcon(getClass().getResource("/pics/fantastic-fast-business-fast-internet-background_952778-12108.jpg"))); // NOI18N
+        jPanel1.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(690, 60, 720, 500));
+
+        jLabel7.setIcon(new javax.swing.ImageIcon(getClass().getResource("/pics/fantastic-fast-business-fast-internet-background_952778-12108.jpg"))); // NOI18N
+        jPanel1.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(690, 60, 720, 500));
+
+        jPanel5.setBackground(new java.awt.Color(0, 102, 255));
+
+        javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
+        jPanel5.setLayout(jPanel5Layout);
+        jPanel5Layout.setHorizontalGroup(
+            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 930, Short.MAX_VALUE)
+        );
+        jPanel5Layout.setVerticalGroup(
+            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 10, Short.MAX_VALUE)
+        );
+
+        jPanel1.add(jPanel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 520, 930, 10));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 735, Short.MAX_VALUE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 939, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 533, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
 
         pack();
@@ -190,59 +313,70 @@ public static Boolean loginAcc(String username, String password) {
     }//GEN-LAST:event_userActionPerformed
 
     private void LbuttonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_LbuttonActionPerformed
- String usernameInput = user.getText().trim();
+       String usernameInput = user.getText().trim();
     String passwordInput = new String(pass.getPassword()).trim();
 
     if (usernameInput.isEmpty() || passwordInput.isEmpty()) {
         JOptionPane.showMessageDialog(this, "Username and Password cannot be empty!", "Error", JOptionPane.ERROR_MESSAGE);
         return;
     }
-    String hashedPasswordInput = hashPassword(passwordInput); 
+
+    String hashedPasswordInput = hashPassword(passwordInput);
     String sql = "SELECT u_id, fn, ln, em, us, type, status, ps FROM users WHERE us = ?";
 
-    try (Connection connect = new DbConnect().getConnection(); 
+    try (Connection connect = new DbConnect().getConnection();
          PreparedStatement pst = connect.prepareStatement(sql)) {
-        
+
         pst.setString(1, usernameInput);
         ResultSet rs = pst.executeQuery();
 
         if (rs.next()) {
-            String dbPassword = rs.getString("ps"); 
+            String dbPassword = rs.getString("ps");
             String status = rs.getString("status");
-            String userType = rs.getString("type"); 
-            
-            Session sess = Session.getInstance();
-        sess.setuid(rs.getInt("u_id"));  
-        sess.setFname(rs.getString("fn"));
-        sess.setLname(rs.getString("ln"));
-        sess.setemail(rs.getString("em"));
-        sess.setusername(rs.getString("us"));
-        sess.settype(rs.getString("type"));
-        sess.setStatus(rs.getString("status"));
-        System.out.println(""+sess.getuid());
+            String userType = rs.getString("type");
 
+           
             if (status.equalsIgnoreCase("Pending")) {
                 JOptionPane.showMessageDialog(this, "Your account is pending. Please wait for admin approval.", "Access Denied", JOptionPane.ERROR_MESSAGE);
                 return;
             }
-          if (hashedPasswordInput.equals(dbPassword)) {
-            JOptionPane.showMessageDialog(this, "Login Successful!", "Success", JOptionPane.INFORMATION_MESSAGE);
-             
-           
 
+            
+            if (hashedPasswordInput.equals(dbPassword)) {
+                
+                
+                Session sess = Session.getInstance();
+                sess.setuid(rs.getInt("u_id"));
+                sess.setFname(rs.getString("fn"));
+                sess.setLname(rs.getString("ln"));
+                sess.setemail(rs.getString("em"));
+                sess.setusername(rs.getString("us"));
+                sess.settype(userType);
+                sess.setStatus(status);
+
+               
+                String activityMessage = userType.equalsIgnoreCase("admin") ? "Admin logged in" : "User logged in";
+                logActivity(sess.getuid(), activityMessage);
+
+               
+                JOptionPane.showMessageDialog(this, "Login Successful!", "Success", JOptionPane.INFORMATION_MESSAGE);
+
+                
                 switch (userType.toLowerCase()) {
                     case "admin":
                     case "supplier":
                         new AdminDashboard().setVisible(true);
                         break;
                     case "client":
-                        new UserDashboard().setVisible(true);
+                        new Userdashboard.UserDashboard().setVisible(true);
                         break;
                     default:
                         JOptionPane.showMessageDialog(this, "Invalid User Type!", "Error", JOptionPane.ERROR_MESSAGE);
                         return;
                 }
-                this.dispose(); 
+
+              
+                this.dispose();
             } else {
                 JOptionPane.showMessageDialog(this, "Invalid Username or Password!", "Error", JOptionPane.ERROR_MESSAGE);
             }
@@ -252,7 +386,7 @@ public static Boolean loginAcc(String username, String password) {
 
     } catch (SQLException ex) {
         JOptionPane.showMessageDialog(this, "DB Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-    }         
+    }    
     }//GEN-LAST:event_LbuttonActionPerformed
 
     private void RbuttonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_RbuttonActionPerformed
@@ -278,6 +412,26 @@ public static Boolean loginAcc(String username, String password) {
         pass.setEchoChar('*'); 
     }
     }//GEN-LAST:event_jCheckBox1ActionPerformed
+
+    private void jLabel8MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel8MouseClicked
+        ForgotPassword fp = new ForgotPassword();
+        fp.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_jLabel8MouseClicked
+
+    private void jLabel8MouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel8MouseEntered
+        jLabel8.setForeground(Color.BLACK);
+        jLabel8.setCursor( new Cursor (Cursor.HAND_CURSOR) );
+    }//GEN-LAST:event_jLabel8MouseEntered
+
+    private void jLabel8MouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel8MouseExited
+        jLabel8.setForeground(Color.BLUE);
+        jLabel8.setCursor( new Cursor (Cursor.DEFAULT_CURSOR) );
+    }//GEN-LAST:event_jLabel8MouseExited
+
+    private void jLabel9MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel9MouseClicked
+this.dispose();
+    }//GEN-LAST:event_jLabel9MouseClicked
 
     /**
      * @param args the command line arguments
@@ -323,9 +477,17 @@ public static Boolean loginAcc(String username, String password) {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
+    private javax.swing.JPanel jPanel5;
+    private javax.swing.JPanel jPanel6;
     private javax.swing.JPasswordField pass;
     private javax.swing.JTextField user;
     // End of variables declaration//GEN-END:variables

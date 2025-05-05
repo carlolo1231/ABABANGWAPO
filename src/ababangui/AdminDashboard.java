@@ -15,41 +15,11 @@ public class AdminDashboard extends javax.swing.JFrame {
 
     
     public AdminDashboard() {
+        setUndecorated(true);
         initComponents();
-        loadUsersData();
+        
     }
- private void loadUsersData() {
-    DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
-    
-    
-    String[] columnNames = {"ID", "First Name", "Last Name", "Contact", "Email", "User Type", "Username", "Status"};
-    model.setColumnIdentifiers(columnNames); 
-    model.setRowCount(0);
-
-    String sql = "SELECT u_id, fn, ln, cn, em, type, us, status FROM users";
-
-    try (Connection connect = new DbConnect().getConnection();
-         PreparedStatement pst = connect.prepareStatement(sql);
-         ResultSet rs = pst.executeQuery()) {
-
-        while (rs.next()) {
-            Object[] row = {
-                rs.getInt("u_id"),
-                rs.getString("fn"),
-                rs.getString("ln"),
-                rs.getString("cn"),
-                rs.getString("em"),
-                rs.getString("type"),
-                rs.getString("us"),
-                rs.getString("status")
-            };
-            model.addRow(row); 
-        }
-
-    } catch (SQLException ex) {
-        JOptionPane.showMessageDialog(this, "Database Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-    }
-}
+ 
     
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -58,13 +28,10 @@ public class AdminDashboard extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
         lname = new javax.swing.JLabel();
-        jButton5 = new javax.swing.JButton();
         fname = new javax.swing.JLabel();
         jButton6 = new javax.swing.JButton();
         jPanel3 = new javax.swing.JPanel();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
-        jLabel2 = new javax.swing.JLabel();
+        jButton5 = new javax.swing.JButton();
         jPanel4 = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -87,16 +54,6 @@ public class AdminDashboard extends javax.swing.JFrame {
         lname.setText("Lname");
         jPanel2.add(lname, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 10, 110, 32));
 
-        jButton5.setBackground(new java.awt.Color(255, 255, 255));
-        jButton5.setFont(new java.awt.Font("Arial Black", 1, 14)); // NOI18N
-        jButton5.setText("Users");
-        jButton5.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton5ActionPerformed(evt);
-            }
-        });
-        jPanel2.add(jButton5, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 10, 140, 40));
-
         fname.setBackground(new java.awt.Color(204, 0, 51));
         fname.setFont(new java.awt.Font("Arial Black", 1, 14)); // NOI18N
         fname.setForeground(new java.awt.Color(255, 255, 255));
@@ -106,6 +63,7 @@ public class AdminDashboard extends javax.swing.JFrame {
         jButton6.setBackground(new java.awt.Color(255, 255, 255));
         jButton6.setFont(new java.awt.Font("Arial Black", 1, 14)); // NOI18N
         jButton6.setText("LOGOUT");
+        jButton6.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 204), 5));
         jButton6.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton6ActionPerformed(evt);
@@ -115,28 +73,20 @@ public class AdminDashboard extends javax.swing.JFrame {
 
         jPanel1.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1000, 60));
 
-        jPanel3.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel3.setBackground(new java.awt.Color(102, 102, 102));
+        jPanel3.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 204), 5));
         jPanel3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jTable1.setBackground(new java.awt.Color(204, 204, 204));
-        jTable1.setFont(new java.awt.Font("Arial Black", 1, 12)); // NOI18N
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {},
-                {},
-                {}
-            },
-            new String [] {
-
+        jButton5.setBackground(new java.awt.Color(255, 255, 255));
+        jButton5.setFont(new java.awt.Font("Arial Black", 1, 14)); // NOI18N
+        jButton5.setText("Users");
+        jButton5.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 204), 5, true));
+        jButton5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton5ActionPerformed(evt);
             }
-        ));
-        jScrollPane1.setViewportView(jTable1);
-
-        jPanel3.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 30, 710, 250));
-
-        jLabel2.setFont(new java.awt.Font("Arial Black", 1, 18)); // NOI18N
-        jLabel2.setText("Registered Users:");
-        jPanel3.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 0, 250, 40));
+        });
+        jPanel3.add(jButton5, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 30, 290, 80));
 
         jPanel1.add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 90, 730, 430));
 
@@ -233,13 +183,10 @@ public class AdminDashboard extends javax.swing.JFrame {
     private javax.swing.JLabel fname;
     private javax.swing.JButton jButton5;
     private javax.swing.JButton jButton6;
-    private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
-    private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTable jTable1;
     private javax.swing.JLabel lname;
     // End of variables declaration//GEN-END:variables
 }

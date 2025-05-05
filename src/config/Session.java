@@ -8,6 +8,9 @@ public class Session {
     private int uid;
     private String Fname;
     private String Lname;
+    private String contact;
+
+    
     private String email;
     private String username;
     private String pass;
@@ -15,7 +18,10 @@ public class Session {
     
     private String type;
     private String status;
-    
+    private String sq;
+    private String ans;
+
+   
         
     private Session(){
     
@@ -51,6 +57,15 @@ public class Session {
     public void setLname(String Lname){
     this.Lname = Lname;
             } 
+    
+    public String getContact() {
+        return contact;
+    }
+
+    public void setContact(String contact) {
+        this.contact = contact;
+    }
+    
      public String getemail(){
     return email;
     }
@@ -58,6 +73,7 @@ public class Session {
     public void setemail(String email){
     this.email = email;
             } 
+    
      public String getusername(){
     return username;
     }
@@ -85,4 +101,19 @@ public class Session {
     public void setStatus(String status){
     this.status = status;
             }
+     public String getSq() {
+        return sq;
+    }
+
+    public void setSq(String sq) {
+        this.sq = sq;
+    }
+
+    public String getAns() {
+        return ans;
+    }
+
+    public void setAns(String ans) {
+        this.ans = ans;
+    }
 }

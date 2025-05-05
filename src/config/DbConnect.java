@@ -5,6 +5,8 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import javax.swing.JOptionPane;
 
 public class DbConnect {
     private Connection connect;
@@ -45,27 +47,20 @@ public class DbConnect {
         return result;
     }
     
-public ResultSet getData(String query) {
-    ResultSet rs = null;
-    try {
-        PreparedStatement pst = connect.prepareStatement(query);
-        rs = pst.executeQuery();
-    } catch (SQLException ex) {
-        System.out.println("SQL Error: " + ex.getMessage());
-    }
-    return rs;
-}
-public boolean insertData(String sql){
+
+ public int insertData(String sql){
+            int result;
             try{
                 PreparedStatement pst = connect.prepareStatement(sql);
                 pst.executeUpdate();
                 System.out.println("Inserted Successfully!");
                 pst.close();
-               return true;
+                result =1;
             }catch(SQLException ex){
                 System.out.println("Connection Error: "+ex);
-               return false;
+                result =0;
             }
+            return result;
         }
 public boolean isEmailExists(String email) {
     String query = "SELECT COUNT(*) FROM users WHERE u_email = ?"; 
@@ -90,6 +85,49 @@ public boolean isEmailExists(String email) {
             }
         }
     }
+ public void updateData(String sql, String fname, String lname, String email, String userType, String reguser, String number, String pass, String destination, String userId) {
+    try (PreparedStatement pst = connect.prepareStatement(sql)) {
+        // Set parameters directly
+        pst.setString(1, fname);
+        pst.setString(2, lname);
+        pst.setString(3, email);
+        pst.setString(4, userType);
+        pst.setString(5, reguser);
+        pst.setString(6, number);
+        pst.setString(7, pass);
+        pst.setString(8, destination);
+        pst.setString(9, userId);
+
+        int rowsUpdated = pst.executeUpdate();
+        if (rowsUpdated > 0) {
+            JOptionPane.showMessageDialog(null, "Data Updated Successfully!");
+        } else {
+            System.out.println("Data Update Failed!");
+        }
+    } catch (SQLException ex) {
+        System.out.println("Connection Error: " + ex.getMessage());
+    }
+}
+ public ResultSet getData(String sql) throws SQLException{
+            Statement stmt = connect.createStatement();
+            ResultSet rst = stmt.executeQuery(sql);
+            return rst;
+        }
+ public void updateData(String sql){
+            try{
+                PreparedStatement pst = connect.prepareStatement(sql);
+                    int rowsUpdated = pst.executeUpdate();
+                        if(rowsUpdated > 0){
+                            JOptionPane.showMessageDialog(null, "Data Updated Successfully!");
+                        }else{
+                            System.out.println("Data Update Failed!");
+                        }
+                        pst.close();
+            }catch(SQLException ex){
+                System.out.println("Connection Error: "+ex);
+            }
+ }
+  
 }
 
 
